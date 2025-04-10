@@ -4,43 +4,56 @@
   font-weight: 400;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
+body{
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+input{
+  padding: 8px;
+  width: full;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  margin: 4px;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+button{
+  background-color: orange;
+  color: white;
+  padding: 8px 16px 8px 16px;
+  border-radius: 6px;
+  width: full;
+  margin-bottom: 4px;
+  border: none;
 }
-button:hover {
-  border-color: #646cff;
+
+.chat-con{
+  padding: 16px;
+  margin: auto;
+  background-color:gray;
+  border-radius: 10px;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
+.msg-con{
+height: 540px;
+overflow-y: auto;
+border: 1px solid #ccc;
+padding: 10px;
+margin-bottom: 4px;
+border-radius: 10px;
+}
+
+.user-name{
+color: black;
+font-style: italic;
+margin: 6px;
+background-color: aqua;
+padding: 2px 4px 2px 4px;
+border-radius: 4px;
+}
+
+.typing-msg{
+  font-size: small;
+  color: aliceblue;
 }
