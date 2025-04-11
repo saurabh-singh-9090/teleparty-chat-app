@@ -17,6 +17,7 @@ const App: React.FC = () => {
   const [client, setClient] = useState<TelepartyClient | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -81,6 +82,10 @@ const App: React.FC = () => {
     client.sendMessage(SocketMessageTypes.SEND_MESSAGE, { body: message });
     setMessage("");
     sendTyping(false);
+    
+    setTimeout(() => {
+      adjustTextAreaHeight();
+    }, 0);
   };
 
   const sendTyping = (typing: boolean) => {
@@ -89,9 +94,17 @@ const App: React.FC = () => {
     client.sendMessage(SocketMessageTypes.SET_TYPING_PRESENCE, { typing });
   };
 
-  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const adjustTextAreaHeight = () => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Set to scroll height
+    }
+  };
+
+  const handleTyping = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
     sendTyping(true);
+    adjustTextAreaHeight(); // Adjust height on typing
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => sendTyping(false), 1000);
@@ -148,10 +161,12 @@ const App: React.FC = () => {
         <div ref={messagesEndRef} /> 
       </div>
       <div className="input-con">
-        <input
+        <textarea
+          ref={textAreaRef}
           placeholder="Type your message"
           value={message}
           onChange={handleTyping}
+          // style={{ resize: "none", overflow: "hidden", width: "100%" }} // Prevent resizing and overflow
         />
         <button onClick={handleSendMessage} disabled={!message.trim()}>
           Send
