@@ -16,6 +16,14 @@ const App: React.FC = () => {
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [client, setClient] = useState<TelepartyClient | null>(null);
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+};
+
   useEffect(() => {
     //Initialising the client
     const eventHandler: SocketEventHandler = {
@@ -24,7 +32,11 @@ const App: React.FC = () => {
       onMessage: (message) => {
         if (message.type === SocketMessageTypes.SEND_MESSAGE) {
           const msg = message.data as SessionChatMessage;
-          setMessages((prev) => [...prev, msg]);
+          setMessages((prev) => {
+            const updatedMessages = [...prev, msg];
+            scrollToBottom(); // Scrolling to the bottom when a new message is added
+            return updatedMessages
+          });
         }
         if (message.type === SocketMessageTypes.SET_TYPING_PRESENCE) {
           setIsTyping(message.data.anyoneTyping);
@@ -132,7 +144,8 @@ const App: React.FC = () => {
             {msg.body}
           </div>
         ))}
-        {isTyping && <div className="typing-msg">Typing...</div>}
+        {isTyping && <span className="typing-msg">Typing...</span>}
+        <div ref={messagesEndRef} /> 
       </div>
       <div className="input-con">
         <input
