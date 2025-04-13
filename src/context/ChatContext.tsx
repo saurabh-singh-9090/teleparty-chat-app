@@ -55,7 +55,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const addUserToMapping = (userId: string, nickname: string) => {
     setUserIdToNickname(prev => {
       if (prev[userId] === nickname) return prev;
-      console.log(`Adding user mapping: ${userId} -> ${nickname}`);
       return { ...prev, [userId]: nickname };
     });
   };
@@ -71,7 +70,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       
       // Skip adding duplicate join messages for the current user during reconnection
       if (reconnecting && msg.isSystemMessage && msg.body.includes(`${nickname}: joined the party`)) {
-        console.log("Skipping duplicate join message during reconnection");
         return;
       }
 
@@ -95,7 +93,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           );
           
           if (isDuplicate) {
-            console.log("Skipping duplicate join message");
             return prev;
           }
         }
@@ -105,14 +102,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       });
     }
     else if (message.type === SocketMessageTypes.SET_TYPING_PRESENCE) {
-      console.log("Typing presence received:", message.data);
       
       // Handle both formats of typing messages
       const { typing, userNickname, usersTyping, userId } = message.data;
       
       // First format: direct userNickname and typing status
       if (userNickname !== undefined) {
-        console.log(`Received typing status: ${typing} for user: ${userNickname}`);
         
         // Check if this is about the current user - use strict equality checking
         const isAboutCurrentUser = 
@@ -120,7 +115,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           (userId && userId === currentUserId);
         
         if (isAboutCurrentUser) {
-          console.log(`This typing status is about the current user (${nickname}), not updating UI`);
           // Update our own typing state
           setIsCurrentUserTyping(typing);
           return;
@@ -132,26 +126,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           
           if (typing) {
             // Add user to typing list
-            console.log(`${userNickname} started typing`);
             updatedTypingUsers = [...new Set([...prev, userNickname])];
           } else {
             // Remove user from typing list
-            console.log(`${userNickname} stopped typing`);
             updatedTypingUsers = prev.filter(user => user !== userNickname);
           }
           
-          console.log("Updated typing users:", updatedTypingUsers);
           return updatedTypingUsers;
         });
       } 
       // Second format: usersTyping array with IDs
       else if (usersTyping && Array.isArray(usersTyping)) {
-        console.log("Received usersTyping array:", usersTyping);
-        console.log("Current user ID:", currentUserId);
-        
         // We need to know if current user is typing from this message
         const isCurrentUserInList = usersTyping.some((id: string) => id === currentUserId);
-        console.log(`Is current user (${currentUserId}) in typing list:`, isCurrentUserInList);
         
         // Check if our own ID is in the list and update our state accordingly
         if (isCurrentUserInList) {
@@ -167,10 +154,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           const isCurrentUser = 
             userId === currentUserId || 
             userIdToNickname[userId] === nickname;
-            
-          if (isCurrentUser) {
-            console.log(`Filtering out own user ID: ${userId} (or nickname match)`);
-          }
           return !isCurrentUser;
         });
         
@@ -190,12 +173,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           name => name !== nickname
         );
         
-        console.log("Final typing users list:", safeTypingNicknames);
         setTypingUsers(safeTypingNicknames);
-      }
-      // Fallback warning if neither format is detected
-      else {
-        console.warn("Received typing status without userNickname or usersTyping");
       }
     }
     // Handle user join/leave events for mapping
@@ -208,7 +186,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   const handleConnectionReady = () => {
-    console.log("Connection established");
     reconnectAttemptsRef.current = 0;
     setReconnecting(false);
   };
@@ -216,7 +193,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const handleClose = () => {
     if (!joined) return; // Don't attempt reconnection if user hasn't joined a room
     
-    console.log("Connection lost. Attempting to reconnect...");
     setReconnecting(true);
     
     if (reconnectAttemptsRef.current < maxReconnectAttempts) {
@@ -249,7 +225,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   const reconnect = async () => {
-    console.log(`Reconnect attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts}`);
     
     const newClient = initializeClient();
     
@@ -262,9 +237,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           roomId, 
           userIcon || undefined
         );
-        
-        console.log("Reconnected and rejoined room");
-        
+                
         // Update user ID to nickname mapping from received messages
         const newMapping: Record<string, string> = {};
         (previousMessages.messages as ExtendedSessionChatMessage[]).forEach(msg => {
@@ -285,7 +258,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         setMessages(uniqueMessages);
       } catch (err) {
         console.error("Reconnection failed:", err);
-        // Will retry automatically based on the onClose handler
       }
     }
   };
@@ -299,7 +271,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     if (!client) return;
     try {
       const id = await WebSocketService.createChatRoom(client, nickname, userIcon || undefined);
-      console.log("RoomID for joining", id);
       setRoomId(id);
       setJoined(true);
       
@@ -386,7 +357,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   // Reset typing state
   const resetTypingState = () => {
-    console.log("Resetting typing state");
     setIsCurrentUserTyping(false);
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -420,7 +390,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     
     // Auto-rejoin room if credentials exist in localStorage AND user has explicitly joined before
     if (savedRoomId && savedNickname && hasExplicitlyJoined) {
-      console.log("Attempting to auto-rejoin with saved credentials");
       
       const attemptAutoJoin = async () => {
         if (autoJoinAttemptRef.current >= maxAutoJoinAttempts) {
@@ -434,15 +403,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         }
         
         try {
-          console.log(`Auto-join attempt ${autoJoinAttemptRef.current + 1}`);
           const previousMessages = await WebSocketService.joinChatRoom(
             newClient, 
             savedNickname, 
             savedRoomId, 
             userIcon || undefined
           );
-          
-          console.log("Auto-rejoined room after page load");
           
           // Build user ID to nickname mapping from previous messages
           const newMapping: Record<string, string> = {};
@@ -457,7 +423,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           if (newClient.socketUserId) {
             setCurrentUserId(newClient.socketUserId);
             addUserToMapping(newClient.socketUserId, savedNickname);
-            console.log(`Set current user ID during auto-join: ${newClient.socketUserId}`);
           }
           
           // Use our deduplication function instead of the filter
@@ -502,7 +467,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   useEffect(() => {
     // If the current user's nickname is in the typingUsers array, make sure isCurrentUserTyping is true
     if (typingUsers.includes(nickname)) {
-      console.log("Current user found in typingUsers array, ensuring isCurrentUserTyping is true");
       if (!isCurrentUserTyping) {
         setIsCurrentUserTyping(true);
       }
@@ -513,8 +477,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        // Page is hidden (user tabbed away, minimized window, etc.)
-        console.log("Page hidden, clearing typing state");
         resetTypingState();
         if (client) {
           // Explicitly send "not typing" to the server when page is hidden

@@ -56,7 +56,6 @@ export class WebSocketService {
     nickname: string,
     userId?: string
   ): void {
-    console.log(`Sending typing status: ${typing} for user: ${nickname}`);
     
     const typingData: any = { 
       typing, 
@@ -65,7 +64,6 @@ export class WebSocketService {
     };
     
     if (userId) {
-      console.log(`Including user ID in typing status: ${userId}`);
       typingData.userId = userId;
     }
     
@@ -76,7 +74,6 @@ export class WebSocketService {
   isDuplicateMessage(msg: ExtendedSessionChatMessage): boolean {
     const messageKey = `${msg.userId}:${msg.body}`;
     if (this.messageSet.has(messageKey)) {
-      console.log("Skipping duplicate message");
       return true;
     }
     

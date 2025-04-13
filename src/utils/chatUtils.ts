@@ -61,7 +61,6 @@ export const isDuplicateMessage = (
   messageSet: Set<string>
 ): boolean => {
   if (messageSet.has(messageKey)) {
-    console.log("Skipping duplicate message");
     return true;
   }
   return false;
