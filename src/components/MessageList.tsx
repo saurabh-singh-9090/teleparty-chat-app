@@ -17,7 +17,9 @@ const MessageList: React.FC = () => {
   
   // Scroll to bottom when messages change
   useEffect(() => {
-    scrollToBottom(messagesEndRef);
+    if (messagesEndRef.current) {
+      scrollToBottom(messagesEndRef as React.RefObject<HTMLDivElement>);
+    }
   }, [messages]);
 
   return (

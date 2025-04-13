@@ -292,6 +292,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   // Creating a chat room
   const handleCreateRoom = async () => {
+    if (!nickname.trim().length) {
+      alert("Please enter a nickname");
+      return;
+    }
     if (!client) return;
     try {
       const id = await WebSocketService.createChatRoom(client, nickname, userIcon || undefined);
