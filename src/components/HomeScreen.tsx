@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
     <div className="chat-con">
       <h1>Join or Create Chat Room</h1>
       <div className="join-room">
-        <span>For creating a chat room, enter your Nickname</span>
+        <span>For creating a chat room, enter your Nickname and Choose your avatar</span>
         <br />
         <br />
         <span>
@@ -24,12 +24,14 @@ const LoginPage: React.FC = () => {
         </span>
       </div>
       <div className="btn-con">
-        <div>
+        <div className="create-room">
           <input
             placeholder="Enter your nickname"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
+            required
           />
+          <button onClick={handleCreateRoom}>Create Room</button>
           <input
             type="file"
             accept="image/*"
@@ -44,7 +46,6 @@ const LoginPage: React.FC = () => {
               }
             }}
           />
-          <button onClick={handleCreateRoom}>Create Room</button>
         </div>
         <div>
           <input

@@ -22,7 +22,7 @@ const ChatRoom: React.FC = () => {
       )}
       <MessageList />
       <ChatInput />
-      <button onClick={signOutHandler}>Sign Out</button>
+      <button onClick={signOutHandler} style={{backgroundColor: "red", width: "100%"}}>Sign Out from this chat room</button>
     </div>
   );
 };
