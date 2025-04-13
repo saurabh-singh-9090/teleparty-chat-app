@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [client, setClient] = useState<TelepartyClient | null>(null);
+  const [userIcon, setUserIcon] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -52,7 +53,7 @@ const App: React.FC = () => {
   // Creating a chat room
   const handleCreateRoom = async () => {
     if (!client) return;
-    const id = await client.createChatRoom(nickname);
+    const id = await client.createChatRoom(nickname, userIcon || undefined);
     console.log("RoomID for joining", id);
     setRoomId(id);
     setJoined(true);
@@ -68,7 +69,9 @@ const App: React.FC = () => {
 
     try {
       // Joining a chat room
-      await client.joinChatRoom(nickname, roomId);
+      const previousMessages = await client.joinChatRoom(nickname, roomId, userIcon || undefined);
+      console.log("PRE", previousMessages);
+      setMessages(previousMessages.messages);
       setJoined(true);
     } catch (err) {
       console.error("Join failed:", err);
@@ -130,6 +133,20 @@ const App: React.FC = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
             />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files) {
+                  const file = e.target.files[0];
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setUserIcon(reader.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
             <button onClick={handleCreateRoom}>Create Room</button>
           </div>
           <div>
@@ -153,6 +170,13 @@ const App: React.FC = () => {
       <div className="msg-con">
         {messages.map((msg, idx) => (
           <div key={idx} className={msg.isSystemMessage ? "user-name" : "user-msg"}>
+            {msg.userSettings.userIcon && (
+              <img
+                src={msg.userSettings.userIcon}
+                alt="User Icon"
+                style={{ width: '30px', borderRadius: '50%' }}
+              />
+            )}
             {msg.userNickname && <strong>{msg.userNickname}: </strong>}
             {msg.body}
           </div>
@@ -166,7 +190,6 @@ const App: React.FC = () => {
           placeholder="Type your message"
           value={message}
           onChange={handleTyping}
-          // style={{ resize: "none", overflow: "hidden", width: "100%" }} // Prevent resizing and overflow
         />
         <button onClick={handleSendMessage} disabled={!message.trim()}>
           Send
