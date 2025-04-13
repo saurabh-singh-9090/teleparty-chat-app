@@ -16,7 +16,7 @@ const ChatInput: React.FC = () => {
   // Effect to adjust textarea height on component mount
   useEffect(() => {
     if (textAreaRef.current) {
-      adjustTextAreaHeight(textAreaRef);
+      adjustTextAreaHeight({ current: textAreaRef.current });
     }
   }, []);
 
@@ -28,7 +28,9 @@ const ChatInput: React.FC = () => {
     
     // Reset textarea height after sending
     setTimeout(() => {
-      adjustTextAreaHeight(textAreaRef);
+      if (textAreaRef.current) {
+        adjustTextAreaHeight({ current: textAreaRef.current });
+      }
     }, 10);
   };
 
@@ -38,9 +40,10 @@ const ChatInput: React.FC = () => {
       handleSubmit();
     }
   };
-
   const handleTyping = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    adjustTextAreaHeight(textAreaRef);
+    if (textAreaRef.current) {
+      adjustTextAreaHeight({ current: textAreaRef.current });
+    }
     setMessage(e.target.value);
     
     // Send typing status
