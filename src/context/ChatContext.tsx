@@ -371,7 +371,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     
     // Remove localStorage items
     localStorage.removeItem("nickname");
-    localStorage.removeItem("roomId");
+    // localStorage.removeItem("roomId");
     localStorage.removeItem("hasJoinedRoom");
     
     // Reset state variables
